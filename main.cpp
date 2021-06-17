@@ -7,6 +7,7 @@
 #include <map>
 #include <utility> // pair
 #include <set>
+#include <regex>
 
 
 using std::string;
@@ -22,6 +23,9 @@ using std::map;
 using std::set;
 using std::pair;
 using std::remove_if;
+using std::cin;
+using std::regex_match;
+using std::regex;
 
 
 void OpenFile(stringstream &buffer)
@@ -49,9 +53,10 @@ void OpenFile(stringstream &buffer)
     }
 }
 
-void InputData(stringstream &buffer, vector <string> &url, map <string, pair <set<int>, int>>& words)
+void InputData(stringstream &buffer, vector <string> &url, map <string, pair <set<int>, int>>& words, string zodis)
 {
     string line, word;
+    transform(zodis.begin(), zodis.end(), zodis.begin(), ::tolower);
     int line_count = 0;
     while(getline(buffer, line))
     {
@@ -60,10 +65,8 @@ void InputData(stringstream &buffer, vector <string> &url, map <string, pair <se
         read.str(line);
         while (read >> word)
         {
-            if(word.find("http://") != string::npos || word.find("https://") != string::npos ||  word.find("www.") != string::npos)
-            {
-                url.push_back(word);
-            }
+
+            if(regex_match(word, regex("(((http|https)://)?www\\.)?[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)"))) url.push_back(word);
 
             else
             {
@@ -73,6 +76,7 @@ void InputData(stringstream &buffer, vector <string> &url, map <string, pair <se
                     transform(word.begin(), word.end(), word.begin(), ::tolower);
                     words[word].first.insert(line_count);
                     words[word].second++;
+                    if(word == zodis) url.push_back(word);
                 }
             }
 
@@ -81,6 +85,7 @@ void InputData(stringstream &buffer, vector <string> &url, map <string, pair <se
     }
 
 }
+
 
 void OutputData(vector <string> url, map <string, pair <set<int>, int>> words)
 {   
@@ -128,10 +133,12 @@ int main(){
     
     vector <string> url;
     map<string, pair <set<int>, int>>words;
-    
+    string zodis;
+    cout << "Iveskite zodi: ";
+    cin >> zodis;
     stringstream buffer;
     OpenFile(buffer);
-    InputData(buffer, url, words);
+    InputData(buffer, url, words, zodis);
     OutputData(url, words);
    
 }
